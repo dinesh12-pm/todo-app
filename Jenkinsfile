@@ -29,11 +29,12 @@ pipeline {
             }
         }
 
-        stage('Build Angular') {
-            steps {
-                sh 'npm run build'
-            }
+        stage('Build Angular App') {
+           steps {
+               sh 'npm run build'
+           }
         }
+
 
         stage('Build Docker Image') {
             steps {
