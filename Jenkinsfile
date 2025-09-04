@@ -1,14 +1,11 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs "NodeJS-20"
-    }
-
     environment {
         APP_NAME = "todo-app"
         IMAGE_NAME = "todo-app-image"
         CONTAINER_NAME = "todo-app-container"
+        NVM_DIR = "$HOME/.nvm"
     }
 
     stages {
@@ -22,16 +19,45 @@ pipeline {
             }
         }
 
+        stage('Setup Node.js 18') {
+            steps {
+                sh '''
+                    # Load NVM
+                    export NVM_DIR="$HOME/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+                    # Install & use Node.js 18
+                    nvm install 18
+                    nvm use 18
+
+                    node -v
+                    npm -v
+                '''
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh 'npm install -g @angular/cli'
-                sh 'npm install'
+                sh '''
+                    export NVM_DIR="$HOME/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    nvm use 18
+
+                    npm install -g @angular/cli
+                    npm install
+                '''
             }
         }
 
         stage('Build Angular App') {
             steps {
-                sh 'npm run build'
+                sh '''
+                    export NVM_DIR="$HOME/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    nvm use 18
+
+                    ng build --configuration production
+                '''
             }
         }
 
@@ -43,27 +69,20 @@ pipeline {
 
         stage('Run Container') {
             steps {
-                script {
-                    // Stop and remove any existing container
-                    sh """
-                        docker ps -q --filter "name=${CONTAINER_NAME}" | grep -q . && docker stop ${CONTAINER_NAME} && docker rm ${CONTAINER_NAME} || true
-                    """
-
-                    // Run a fresh container
-                    sh """
-                        docker run -d -p 8080:80 --name ${CONTAINER_NAME} ${IMAGE_NAME}:latest
-                    """
-                }
+                sh '''
+                    docker rm -f ${CONTAINER_NAME} || true
+                    docker run -d --name ${CONTAINER_NAME} -p 8080:80 ${IMAGE_NAME}:latest
+                '''
             }
         }
     }
 
     post {
-        success {
-            echo "✅ Angular app built and running inside Docker at http://<EC2-Public-IP>:8080"
-        }
         failure {
             echo "❌ Pipeline failed. Check Jenkins logs."
+        }
+        success {
+            echo "✅ Pipeline succeeded. App is running in Docker."
         }
     }
 }
