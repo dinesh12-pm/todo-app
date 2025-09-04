@@ -4,7 +4,6 @@
   "projects": {
     "todo-app": {
       "projectType": "application",
-      "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -32,7 +31,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
@@ -73,7 +71,6 @@
         }
       }
     }
-  },
-  "defaultProject": "todo-app"
+  }
 }
 
