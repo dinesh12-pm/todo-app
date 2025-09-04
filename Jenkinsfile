@@ -30,11 +30,10 @@ pipeline {
         }
 
         stage('Build Angular App') {
-           steps {
-               sh 'npm run build'
-           }
+            steps {
+                sh 'npm run build'
+            }
         }
-
 
         stage('Build Docker Image') {
             steps {
@@ -45,14 +44,26 @@ pipeline {
         stage('Run Container') {
             steps {
                 script {
+                    // Stop and remove any existing container
                     sh """
-                    if [ \$(docker ps -q -f name=${CONTAINER_NAME}) ]; then
-                        docker stop ${CONTAINER_NAME} && docker rm ${CONTAINER_NAME}
-                    fi
-                    docker run -d --name ${CONTAINER_NAME} -p 80:80 ${IMAGE_NAME}:latest
+                        docker ps -q --filter "name=${CONTAINER_NAME}" | grep -q . && docker stop ${CONTAINER_NAME} && docker rm ${CONTAINER_NAME} || true
+                    """
+
+                    // Run a fresh container
+                    sh """
+                        docker run -d -p 8080:80 --name ${CONTAINER_NAME} ${IMAGE_NAME}:latest
                     """
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Angular app built and running inside Docker at http://<EC2-Public-IP>:8080"
+        }
+        failure {
+            echo "❌ Pipeline failed. Check Jenkins logs."
         }
     }
 }
