@@ -24,7 +24,8 @@ pipeline {
                     node -v
                     npm -v
 
-                    npm install -g @angular/cli
+                    # Install Angular CLI locally (not global)
+                    npm install @angular/cli@18 --save-dev
                     npm install
                 '''
             }
@@ -32,7 +33,7 @@ pipeline {
 
         stage('Build Angular App') {
             steps {
-                sh 'ng build --configuration production'
+                sh './node_modules/.bin/ng build --configuration production'
             }
         }
 
@@ -46,18 +47,9 @@ pipeline {
             steps {
                 sh '''
                     docker rm -f ${CONTAINER_NAME} || true
-                    docker run -d --name ${CONTAINER_NAME} -p 8080:80 ${IMAGE_NAME}:latest
+                    docker run -d --name ${CONTAINER_NAME} -p 80:80 ${IMAGE_NAME}:latest
                 '''
             }
-        }
-    }
-
-    post {
-        failure {
-            echo "❌ Pipeline failed. Check Jenkins logs."
-        }
-        success {
-            echo "✅ Pipeline succeeded. App is running in Docker."
         }
     }
 }
