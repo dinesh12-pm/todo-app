@@ -24,7 +24,7 @@ pipeline {
                 sh '''
                     # Load NVM
                     export NVM_DIR="$HOME/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
                     # Install & use Node.js 18
                     nvm install 18
@@ -40,7 +40,7 @@ pipeline {
             steps {
                 sh '''
                     export NVM_DIR="$HOME/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
                     nvm use 18
 
                     npm install -g @angular/cli
@@ -53,7 +53,7 @@ pipeline {
             steps {
                 sh '''
                     export NVM_DIR="$HOME/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
                     nvm use 18
 
                     ng build --configuration production
