@@ -5,7 +5,6 @@ pipeline {
         APP_NAME = "todo-app"
         IMAGE_NAME = "todo-app-image"
         CONTAINER_NAME = "todo-app-container"
-        NVM_DIR = "$HOME/.nvm"
     }
 
     stages {
@@ -19,29 +18,11 @@ pipeline {
             }
         }
 
-        stage('Setup Node.js 18') {
-            steps {
-                sh '''
-                    # Load NVM
-                    export NVM_DIR="$HOME/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-
-                    # Install & use Node.js 18
-                    nvm install 18
-                    nvm use 18
-
-                    node -v
-                    npm -v
-                '''
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    export NVM_DIR="$HOME/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                    nvm use 18
+                    node -v
+                    npm -v
 
                     npm install -g @angular/cli
                     npm install
@@ -51,13 +32,7 @@ pipeline {
 
         stage('Build Angular App') {
             steps {
-                sh '''
-                    export NVM_DIR="$HOME/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                    nvm use 18
-
-                    ng build --configuration production
-                '''
+                sh 'ng build --configuration production'
             }
         }
 
